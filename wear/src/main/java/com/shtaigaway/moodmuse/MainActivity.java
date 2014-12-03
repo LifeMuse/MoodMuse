@@ -1,25 +1,21 @@
 package com.shtaigaway.moodmuse;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.activity.ConfirmationActivity;
 import android.support.wearable.view.WearableListView;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.shtaigaway.moodmuse.mood.Mood;
+import com.shtaigaway.moodmuse.mood.MoodListAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.shtaigaway.moodmuse.R.drawable;
 import static com.shtaigaway.moodmuse.R.id;
-import static com.shtaigaway.moodmuse.R.layout;
 import static com.shtaigaway.moodmuse.R.string;
 
 public class MainActivity extends Activity implements WearableListView.ClickListener {
@@ -30,12 +26,8 @@ public class MainActivity extends Activity implements WearableListView.ClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         createMoodList();
-
-        WearableListView wearableListView = (WearableListView) findViewById(R.id.wearable_list);
-        wearableListView.setAdapter(new Adapter(this));
-        wearableListView.setClickListener(this);
+        setupMoodListView();
     }
 
     private void createMoodList() {
@@ -47,9 +39,20 @@ public class MainActivity extends Activity implements WearableListView.ClickList
         moodList.add(new Mood(getString(string.awesome_mood), drawable.awesome_mood));
     }
 
+    private void setupMoodListView() {
+        WearableListView wearableListView = (WearableListView) findViewById(id.wearable_list);
+        wearableListView.setAdapter(new MoodListAdapter(LayoutInflater.from(this), moodList));
+        wearableListView.setClickListener(this);
+    }
+
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
         TextView nameView = (TextView) viewHolder.itemView.findViewById(id.mood_message);
+        showSuccess();
+        finish();
+    }
+
+    private void showSuccess() {
         Intent intent = new Intent(this, ConfirmationActivity.class);
         intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE,
                 ConfirmationActivity.SUCCESS_ANIMATION);
@@ -63,44 +66,4 @@ public class MainActivity extends Activity implements WearableListView.ClickList
 
     }
 
-    private final class Adapter extends WearableListView.Adapter {
-        private final LayoutInflater inflater;
-
-        public Adapter(Context context) {
-            inflater = LayoutInflater.from(context);
-        }
-
-        public class ItemViewHolder extends WearableListView.ViewHolder {
-            private TextView textView;
-            private ImageView imageView;
-
-            public ItemViewHolder(View itemView) {
-                super(itemView);
-                textView = (TextView) itemView.findViewById(id.mood_message);
-                imageView = (ImageView) itemView.findViewById(id.mood_image);
-            }
-        }
-
-        @Override
-        public WearableListView.ViewHolder onCreateViewHolder(ViewGroup parent,
-                                                              int viewType) {
-            return new ItemViewHolder(inflater.inflate(layout.list_item, null));
-        }
-
-        @Override
-        public void onBindViewHolder(WearableListView.ViewHolder holder,
-                                     int position) {
-            ItemViewHolder itemHolder = (ItemViewHolder) holder;
-            TextView view = itemHolder.textView;
-            Mood mood = moodList.get(position);
-            view.setText(mood.getMessage());
-            itemHolder.imageView.setImageResource(mood.getImageResource());
-            holder.itemView.setTag(position);
-        }
-
-        @Override
-        public int getItemCount() {
-            return moodList.size();
-        }
-    }
 }
