@@ -1,7 +1,6 @@
 package com.shtaigaway.moodmuse.tracking;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
@@ -53,7 +52,7 @@ public class MoodTrackingService extends Service {
             timeUnit = TimeUnit.MILLISECONDS;
         }
 
-        backgroundService.schedule(new TimerIncreasedRunnable(
+        backgroundService.schedule(new RequestMoodTracking(
                 this), nextTrack, timeUnit);
     }
 
@@ -75,16 +74,4 @@ public class MoodTrackingService extends Service {
         super.onDestroy();
     }
 
-    public class TimerIncreasedRunnable implements Runnable {
-
-        private final Context context;
-
-        public TimerIncreasedRunnable(Context context) {
-            this.context = context;
-        }
-
-        @Override
-        public void run() {
-        }
-    }
 }

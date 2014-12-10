@@ -10,5 +10,7 @@
     <string name="angry_mood">Angry</string>
     <string name="mood_saved">Mood Saved</string>
     <string name="voice_start_label">Mood Tracker</string>
+    <string name="tracking_notification_description">Time for another mood log</string>
+    <string name="tracking_notification_title">How do you do?</string>
 
 </resources>
