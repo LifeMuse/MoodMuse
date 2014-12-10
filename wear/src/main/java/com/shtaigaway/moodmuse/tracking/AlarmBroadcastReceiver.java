@@ -5,18 +5,17 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.shtaigaway.moodmuse.Constants;
+import com.shtaigaway.moodmuse.R;
 
 /**
  * Created by Naughty Spirit
  * on 12/11/14.
  */
 public class AlarmBroadcastReceiver extends BroadcastReceiver {
-    private static final String LOG_TAG = AlarmBroadcastReceiver.class.getSimpleName();
-    public static final String ACTION_CUSTOM_ALARM = "alwayson.alarm.action";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals(AlarmBroadcastReceiver.ACTION_CUSTOM_ALARM)) {
+        if (intent.getAction().equals(context.getString(R.string.alarm_action_name))) {
             String previousAction = intent
                     .getStringExtra(Constants.STARTUP_ACTION_NAME);
             if (previousAction == null || previousAction.length() == 0) {

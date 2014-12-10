@@ -12,5 +12,6 @@
     <string name="voice_start_label">Mood Tracker</string>
     <string name="tracking_notification_description">Time for another mood log</string>
     <string name="tracking_notification_title">How do you do?</string>
+    <string name="alarm_action_name">alwayson.alarm.action</string>
 
 </resources>

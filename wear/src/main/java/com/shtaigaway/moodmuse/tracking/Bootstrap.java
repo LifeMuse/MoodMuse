@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 
 import com.shtaigaway.moodmuse.Constants;
+import com.shtaigaway.moodmuse.R;
 
 import java.util.Calendar;
 
@@ -30,7 +31,7 @@ public class Bootstrap {
             Intent startAlarmIntent = new Intent(context, AlarmBroadcastReceiver.class);
             startAlarmIntent.setFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
             startAlarmIntent.putExtra(Constants.STARTUP_ACTION_NAME, loadedFrom);
-            startAlarmIntent.setAction(AlarmBroadcastReceiver.ACTION_CUSTOM_ALARM);
+            startAlarmIntent.setAction(context.getString(R.string.alarm_action_name));
             PendingIntent sender = PendingIntent.getBroadcast(context, 0,
                     startAlarmIntent, 0);
             Calendar time = Calendar.getInstance();
@@ -55,7 +56,7 @@ public class Bootstrap {
 
         // cancel alarm restart
         Intent intent = new Intent(context, AlarmBroadcastReceiver.class);
-        intent.setAction(AlarmBroadcastReceiver.ACTION_CUSTOM_ALARM);
+        intent.setAction(context.getString(R.string.alarm_action_name));
         PendingIntent sender = PendingIntent
                 .getBroadcast(context, 0, intent, 0);
         AlarmManager alarmManager = (AlarmManager) context
