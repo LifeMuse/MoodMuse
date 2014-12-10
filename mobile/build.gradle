@@ -13,14 +13,22 @@ android {
     }
     buildTypes {
         release {
-            runProguard false
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+        packagingOptions {
+            exclude 'META-INF/LICENSE'
+            exclude 'META-INF/NOTICE'
+            exclude 'META-INF/DEPENDENCIES'
+        }
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     wearApp project(':wear')
     compile 'com.google.android.gms:play-services:+'
+    compile 'com.parse.bolts:bolts-android:1.1.2'
+    compile fileTree(dir: 'libs', include: 'Parse-*.jar')
 }

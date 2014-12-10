@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Log Mood Muse</string>
+    <string name="app_name">Mood Muse</string>
     <string name="mood_image_description">mood image</string>
     <string name="bad_mood">Bad</string>
     <string name="ok_mood">OK</string>
@@ -9,5 +9,6 @@
     <string name="awesome_mood">Awesome</string>
     <string name="angry_mood">Angry</string>
     <string name="mood_saved">Mood Saved</string>
+    <string name="voice_start_label">Mood Tracker</string>
 
 </resources>

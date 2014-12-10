@@ -5,9 +5,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.activity.ConfirmationActivity;
 import android.support.wearable.view.WearableListView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.TextView;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.Wearable;
 import com.shtaigaway.moodmuse.mood.Mood;
 import com.shtaigaway.moodmuse.mood.MoodListAdapter;
 
@@ -18,9 +25,10 @@ import static com.shtaigaway.moodmuse.R.drawable;
 import static com.shtaigaway.moodmuse.R.id;
 import static com.shtaigaway.moodmuse.R.string;
 
-public class MainActivity extends Activity implements WearableListView.ClickListener {
+public class MainActivity extends Activity implements WearableListView.ClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private List<Mood> moodList;
+    private GoogleApiClient googleClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,10 +36,16 @@ public class MainActivity extends Activity implements WearableListView.ClickList
         setContentView(R.layout.activity_main);
         createMoodList();
         setupMoodListView();
+
+        googleClient = new GoogleApiClient.Builder(this)
+                .addApi(Wearable.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
     }
 
     private void createMoodList() {
-        moodList = new ArrayList<Mood>();
+        moodList = new ArrayList<>();
         moodList.add(new Mood(getString(string.angry_mood), drawable.angry_mood));
         moodList.add(new Mood(getString(string.bad_mood), drawable.sad_mood));
         moodList.add(new Mood(getString(string.ok_mood), drawable.ok_mood));
@@ -48,6 +62,9 @@ public class MainActivity extends Activity implements WearableListView.ClickList
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
         TextView nameView = (TextView) viewHolder.itemView.findViewById(id.mood_message);
+
+        //Requires a new thread to avoid blocking the UI
+        new SendToDataLayerThread("/message_path", nameView.getText().toString()).start();
         showSuccess();
         finish();
     }
@@ -66,4 +83,60 @@ public class MainActivity extends Activity implements WearableListView.ClickList
 
     }
 
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    // Connect to the data layer when the Activity starts
+    @Override
+    protected void onStart() {
+        super.onStart();
+        googleClient.connect();
+    }
+
+    // Send a message when the data layer connection is successful.
+    @Override
+    public void onConnected(Bundle connectionHint) {
+
+    }
+
+    // Disconnect from the data layer when the Activity stops
+    @Override
+    protected void onStop() {
+        if (null != googleClient && googleClient.isConnected()) {
+            googleClient.disconnect();
+        }
+        super.onStop();
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    class SendToDataLayerThread extends Thread {
+        String path;
+        String message;
+
+        // Constructor to send a message to the data layer
+        SendToDataLayerThread(String p, String msg) {
+            path = p;
+            message = msg;
+        }
+
+        public void run() {
+            NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(googleClient).await();
+            for (Node node : nodes.getNodes()) {
+                MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(googleClient, node.getId(), path, message.getBytes()).await();
+                if (result.getStatus().isSuccess()) {
+                    Log.v("myTag", "Message: {" + message + "} sent to: " + node.getDisplayName());
+                }
+                else {
+                    // Log an error
+                    Log.v("myTag", "ERROR: failed to send Message");
+                }
+            }
+        }
+    }
 }

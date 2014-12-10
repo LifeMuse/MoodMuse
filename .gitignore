@@ -27,3 +27,5 @@ proguard/
 *.iml
 .idea/
 *.DS_Store
+
+ParseConstants.java
