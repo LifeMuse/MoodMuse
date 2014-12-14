@@ -1,8 +1,11 @@
 package com.shtaigaway.moodmuse;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.wearable.activity.ConfirmationActivity;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
@@ -34,6 +37,7 @@ public class MainActivity extends Activity implements WearableListView.ClickList
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         createMoodList();
         setupMoodListView();
 
@@ -63,7 +67,6 @@ public class MainActivity extends Activity implements WearableListView.ClickList
     public void onClick(WearableListView.ViewHolder viewHolder) {
         TextView nameView = (TextView) viewHolder.itemView.findViewById(id.mood_message);
 
-        //Requires a new thread to avoid blocking the UI
         new SendToDataLayerThread("/message_path", nameView.getText().toString()).start();
         showSuccess();
         finish();
@@ -88,20 +91,17 @@ public class MainActivity extends Activity implements WearableListView.ClickList
 
     }
 
-    // Connect to the data layer when the Activity starts
     @Override
     protected void onStart() {
         super.onStart();
         googleClient.connect();
     }
 
-    // Send a message when the data layer connection is successful.
     @Override
     public void onConnected(Bundle connectionHint) {
 
     }
 
-    // Disconnect from the data layer when the Activity stops
     @Override
     protected void onStop() {
         if (null != googleClient && googleClient.isConnected()) {
@@ -119,7 +119,6 @@ public class MainActivity extends Activity implements WearableListView.ClickList
         String path;
         String message;
 
-        // Constructor to send a message to the data layer
         SendToDataLayerThread(String p, String msg) {
             path = p;
             message = msg;
@@ -131,8 +130,7 @@ public class MainActivity extends Activity implements WearableListView.ClickList
                 MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(googleClient, node.getId(), path, message.getBytes()).await();
                 if (result.getStatus().isSuccess()) {
                     Log.v("myTag", "Message: {" + message + "} sent to: " + node.getDisplayName());
-                }
-                else {
+                } else {
                     // Log an error
                     Log.v("myTag", "ERROR: failed to send Message");
                 }

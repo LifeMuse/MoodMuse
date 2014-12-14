@@ -2,6 +2,7 @@ package com.shtaigaway.moodmuse;
 
 import android.app.Application;
 
+import com.parse.Parse;
 import com.parse.ParseUser;
 
 /**
@@ -13,6 +14,7 @@ public class MoodMuseApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Parse.initialize(this, ParseConstants.APP_ID, ParseConstants.CLIENT_KEY);
         ParseUser.enableAutomaticUser();
     }
 }

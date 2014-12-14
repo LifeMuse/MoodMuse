@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  * Created by Naughty Spirit
  * on 12/11/14.
  */
-public class MoodTrackingService extends Service {
+public class MoodTrackingService extends Service implements MoodTrackingScheduler {
 
     public static boolean isRunning = false;
     private ScheduledExecutorService backgroundService;
@@ -34,26 +34,26 @@ public class MoodTrackingService extends Service {
 
         if (!isRunning) {
             backgroundService = Executors.newSingleThreadScheduledExecutor();
-            scheduleMoodTracking();
+            scheduleNextMoodTracking();
             isRunning = true;
         }
 
         return START_STICKY;
     }
 
-    private void scheduleMoodTracking() {
+    public void scheduleNextMoodTracking() {
 
         int currentHour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         long nextTrack = (random.nextInt(Constants.MAX_HOURS_TRACKING_INTERVAL) + 1 + currentHour) % 24;
         TimeUnit timeUnit = TimeUnit.HOURS;
 
-        if(nextTrack > Constants.LATEST_TRACKING_TIME && nextTrack < Constants.EARLIEST_TRACKING_TIME) {
+        if (nextTrack > Constants.LATEST_TRACKING_TIME && nextTrack < Constants.EARLIEST_TRACKING_TIME) {
             nextTrack = nowAndEarliestTrackingTimeDifference();
             timeUnit = TimeUnit.MILLISECONDS;
         }
 
         backgroundService.schedule(new RequestMoodTracking(
-                this), nextTrack, timeUnit);
+                this, this), nextTrack, timeUnit);
     }
 
     private long nowAndEarliestTrackingTimeDifference() {
