@@ -2,10 +2,8 @@ package com.shtaigaway.moodmuse;
 
 import android.app.Activity;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
 import android.support.wearable.activity.ConfirmationActivity;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
@@ -20,6 +18,7 @@ import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 import com.shtaigaway.moodmuse.mood.Mood;
 import com.shtaigaway.moodmuse.mood.MoodListAdapter;
+import com.shtaigaway.moodmuse.tracking.Bootstrap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +39,8 @@ public class MainActivity extends Activity implements WearableListView.ClickList
 
         createMoodList();
         setupMoodListView();
+
+        Bootstrap.startAlwaysOnService(this, Constants.STARTUP_ACTION_NAME);
 
         googleClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
