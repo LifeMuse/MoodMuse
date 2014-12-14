@@ -45,7 +45,7 @@ public class Bootstrap {
             am.setRepeating(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(),
                     Constants.ALARM_REPEAT_INTERVAL * 1000, sender);
 
-            setBootupListen(context, true);
+            setBootUpListen(context, true);
         }
     }
 
@@ -63,10 +63,10 @@ public class Bootstrap {
                 .getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(sender);
 
-        setBootupListen(context, false);
+        setBootUpListen(context, false);
     }
 
-    private static void setBootupListen(Context context, boolean isEnabled) {
+    private static void setBootUpListen(Context context, boolean isEnabled) {
         int flag = (isEnabled ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
                 : PackageManager.COMPONENT_ENABLED_STATE_DISABLED);
         ComponentName component = new ComponentName(context,

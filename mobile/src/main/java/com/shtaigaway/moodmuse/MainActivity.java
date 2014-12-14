@@ -11,6 +11,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.parse.Parse;
 import com.parse.ParseAnalytics;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 
 public class MainActivity extends Activity {
@@ -35,7 +36,9 @@ public class MainActivity extends Activity {
             String message = intent.getStringExtra("message");
             ParseObject mood = new ParseObject("MoodRecord");
             mood.add("name", message);
+            mood.add("user", ParseUser.getCurrentUser());
             mood.saveInBackground();
+
         }
     }
 }

@@ -11,7 +11,7 @@
         android:theme="@android:style/Theme.DeviceDefault">
         <activity
             android:name="com.shtaigaway.moodmuse.MainActivity"
-            android:label="@string/voice_start_label">
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
