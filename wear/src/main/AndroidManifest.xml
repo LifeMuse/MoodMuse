@@ -37,7 +37,7 @@
             android:name=".tracking.AlarmBroadcastReceiver"
             android:exported="false">
             <intent-filter>
-                <action android:name="@string/alarm_action_name" />
+                <action android:name="alwayson.alarm.action" />
             </intent-filter>
         </receiver>
 
