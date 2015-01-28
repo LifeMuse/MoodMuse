@@ -11,6 +11,6 @@
     <string name="mood_saved">Mood Saved</string>
     <string name="tracking_notification_description">Ready for another mood log?</string>
     <string name="tracking_notification_title">How do you do?</string>
-    <string name="alarm_action_name">alwayson.alarm.action</string>
+
 
 </resources>

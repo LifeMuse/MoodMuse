@@ -2,8 +2,13 @@ package com.shtaigaway.moodmuse.tracking;
 
 import android.app.Service;
 import android.content.Intent;
+import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.Wearable;
 import com.shtaigaway.moodmuse.Constants;
 
 import java.util.Calendar;
@@ -17,12 +22,48 @@ import java.util.concurrent.TimeUnit;
  * Created by Naughty Spirit
  * on 12/11/14.
  */
-public class MoodTrackingService extends Service implements MoodTrackingScheduler {
+public class MoodTrackingService extends Service implements MoodTrackingScheduler, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     public static boolean isRunning = false;
     private ScheduledExecutorService backgroundService;
 
     private Random random = new Random();
+
+    GoogleApiClient googleApiClient;
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(Wearable.API)
+                .build();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (googleApiClient != null && googleApiClient.isConnected()) {
+            googleApiClient.disconnect();
+        }
+        isRunning = false;
+        backgroundService.shutdownNow();
+        super.onDestroy();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -33,6 +74,7 @@ public class MoodTrackingService extends Service implements MoodTrackingSchedule
     public int onStartCommand(Intent intent, int flags, int startId) {
 
         if (!isRunning) {
+            googleApiClient.connect();
             backgroundService = Executors.newSingleThreadScheduledExecutor();
             scheduleNextMoodTracking();
             isRunning = true;
@@ -51,9 +93,7 @@ public class MoodTrackingService extends Service implements MoodTrackingSchedule
             nextTrack = nowAndEarliestTrackingTimeDifference();
             timeUnit = TimeUnit.MILLISECONDS;
         }
-
-        backgroundService.schedule(new RequestMoodTracking(
-                this, this), nextTrack, timeUnit);
+        backgroundService.schedule(new RequestMoodTracking(googleApiClient, this), nextTrack, timeUnit);
     }
 
     private long nowAndEarliestTrackingTimeDifference() {
@@ -65,13 +105,6 @@ public class MoodTrackingService extends Service implements MoodTrackingSchedule
         calendar.set(Calendar.HOUR_OF_DAY, Constants.EARLIEST_TRACKING_TIME);
         Date tomorrowTracking = calendar.getTime();
         return tomorrowTracking.getTime() - now.getTime();
-    }
-
-    @Override
-    public void onDestroy() {
-        isRunning = false;
-        backgroundService.shutdownNow();
-        super.onDestroy();
     }
 
 }

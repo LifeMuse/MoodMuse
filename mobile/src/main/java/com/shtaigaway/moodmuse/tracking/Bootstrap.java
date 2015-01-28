@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.util.Log;
 
 import com.shtaigaway.moodmuse.Constants;
 import com.shtaigaway.moodmuse.R;
@@ -23,6 +24,8 @@ public class Bootstrap {
                                                          String loadedFrom) {
 
         if (!MoodTrackingService.isRunning) {
+
+
 
             Intent startServiceIntent = new Intent(context, MoodTrackingService.class);
             startServiceIntent.putExtra(Constants.STARTUP_ACTION_NAME, loadedFrom);

@@ -1,7 +1,6 @@
 package com.shtaigaway.moodmuse;
 
 import android.app.Activity;
-import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.activity.ConfirmationActivity;
@@ -12,13 +11,15 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.shtaigaway.moodmuse.mood.Mood;
 import com.shtaigaway.moodmuse.mood.MoodListAdapter;
-import com.shtaigaway.moodmuse.tracking.Bootstrap;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,9 @@ import static com.shtaigaway.moodmuse.R.string;
 public class MainActivity extends Activity implements WearableListView.ClickListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private List<Mood> moodList;
-    private GoogleApiClient googleClient;
+    GoogleApiClient googleApiClient;
+
+    private static final String PATH = "/moods";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,13 +43,18 @@ public class MainActivity extends Activity implements WearableListView.ClickList
         createMoodList();
         setupMoodListView();
 
-        Bootstrap.startAlwaysOnService(this, Constants.STARTUP_ACTION_NAME);
-
-        googleClient = new GoogleApiClient.Builder(this)
-                .addApi(Wearable.API)
+        googleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
+                .addApi(Wearable.API)
                 .build();
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        googleApiClient.connect();
     }
 
     private void createMoodList() {
@@ -67,8 +75,8 @@ public class MainActivity extends Activity implements WearableListView.ClickList
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
         TextView nameView = (TextView) viewHolder.itemView.findViewById(id.mood_message);
+        new SendToDataLayerThread("/moods", nameView.getText().toString()).start();
 
-        new SendToDataLayerThread("/message_path", nameView.getText().toString()).start();
         showSuccess();
         finish();
     }
@@ -88,32 +96,27 @@ public class MainActivity extends Activity implements WearableListView.ClickList
     }
 
     @Override
+    public void onConnected(Bundle bundle) {
+
+    }
+
+    @Override
     public void onConnectionSuspended(int i) {
 
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        googleClient.connect();
-    }
-
-    @Override
-    public void onConnected(Bundle connectionHint) {
-
-    }
-
-    @Override
-    protected void onStop() {
-        if (null != googleClient && googleClient.isConnected()) {
-            googleClient.disconnect();
-        }
-        super.onStop();
-    }
-
-    @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
+    }
+
+
+    @Override
+    public void onDestroy() {
+        if (googleApiClient != null && googleApiClient.isConnected()) {
+            googleApiClient.disconnect();
+        }
+        super.onDestroy();
     }
 
     class SendToDataLayerThread extends Thread {
@@ -126,9 +129,9 @@ public class MainActivity extends Activity implements WearableListView.ClickList
         }
 
         public void run() {
-            NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(googleClient).await();
+            NodeApi.GetConnectedNodesResult nodes = Wearable.NodeApi.getConnectedNodes(googleApiClient).await();
             for (Node node : nodes.getNodes()) {
-                MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(googleClient, node.getId(), path, message.getBytes()).await();
+                MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(googleApiClient, node.getId(), path, message.getBytes()).await();
                 if (result.getStatus().isSuccess()) {
                     Log.v("myTag", "Message: {" + message + "} sent to: " + node.getDisplayName());
                 } else {

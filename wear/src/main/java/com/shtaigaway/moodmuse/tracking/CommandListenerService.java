@@ -8,26 +8,32 @@ import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 
+import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.WearableListenerService;
 import com.shtaigaway.moodmuse.Constants;
 import com.shtaigaway.moodmuse.MainActivity;
 import com.shtaigaway.moodmuse.R;
 
 /**
  * Created by Naughty Spirit
- * on 12/11/14.
+ * on 1/28/15.
  */
-public class RequestMoodTracking implements Runnable {
+public class CommandListenerService extends WearableListenerService {
 
-    private final Context context;
-    private final MoodTrackingScheduler moodTrackingScheduler;
-
-    public RequestMoodTracking(Context context, MoodTrackingScheduler moodTrackingScheduler) {
-        this.context = context;
-        this.moodTrackingScheduler = moodTrackingScheduler;
-    }
+    private static final String PATH = "/commands";
 
     @Override
-    public void run() {
+    public void onMessageReceived(MessageEvent messageEvent) {
+        if (messageEvent.getPath().equals(PATH)) {
+            showTrackingNotification();
+        } else {
+            super.onMessageReceived(messageEvent);
+        }
+    }
+
+    private void showTrackingNotification() {
+        Context context = getApplicationContext();
+
         Intent viewIntent = new Intent(context, MainActivity.class);
         PendingIntent viewPendingIntent =
                 PendingIntent.getActivity(context, 0, viewIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -53,6 +59,5 @@ public class RequestMoodTracking implements Runnable {
                 NotificationManagerCompat.from(context);
 
         notificationManager.notify(Constants.TRACK_MOOD_NOTIFICATION_ID, notificationBuilder.build());
-        moodTrackingScheduler.scheduleNextMoodTracking();
     }
 }
