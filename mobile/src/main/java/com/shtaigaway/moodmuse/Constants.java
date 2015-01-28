@@ -11,5 +11,4 @@ public interface Constants {
     int EARLIEST_TRACKING_TIME = 11;
     int LATEST_TRACKING_TIME = 22;
     int MAX_HOURS_TRACKING_INTERVAL = 5;
-    int TRACK_MOOD_NOTIFICATION_ID = 1;
 }

@@ -2,17 +2,18 @@ package com.shtaigaway.moodmuse;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.widget.Toast;
 
-import com.shtaigaway.moodmuse.tracking.Bootstrap;
-
-
+/**
+ * Created by Naughty Spirit
+ * on 1/28/15.
+ */
 public class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Bootstrap.startAlwaysOnService(this, Constants.STARTUP_ACTION_NAME);
+        Toast.makeText(this, getString(R.string.mood_tracking_started), Toast.LENGTH_LONG).show();
+        finish();
     }
 }
