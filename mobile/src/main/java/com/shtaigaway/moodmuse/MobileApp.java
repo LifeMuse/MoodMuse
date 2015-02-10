@@ -2,9 +2,9 @@ package com.shtaigaway.moodmuse;
 
 import android.app.Application;
 
-import com.parse.Parse;
-import com.parse.ParseUser;
 import com.shtaigaway.moodmuse.tracking.Bootstrap;
+
+import it.appspice.android.AppSpice;
 
 /**
  * Created by Naughty Spirit
@@ -16,7 +16,6 @@ public class MobileApp extends Application {
     public void onCreate() {
         super.onCreate();
         Bootstrap.startAlwaysOnService(this, Constants.STARTUP_ACTION_NAME);
-        Parse.initialize(this, ParseConstants.APP_ID, ParseConstants.CLIENT_KEY);
-        ParseUser.enableAutomaticUser();
+        AppSpice.init(getApplicationContext(), "AppSpice token", AppSpiceConstants.APP_ID);
     }
 }

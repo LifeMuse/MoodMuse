@@ -1,15 +1,9 @@
 package com.shtaigaway.moodmuse;
 
-import android.util.Log;
-
-import com.google.android.gms.wearable.DataEvent;
-import com.google.android.gms.wearable.DataEventBuffer;
-import com.google.android.gms.wearable.DataMap;
-import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.WearableListenerService;
-import com.parse.ParseObject;
-import com.parse.ParseUser;
+
+import it.appspice.android.AppSpice;
 
 /**
  * Created by Naughty Spirit
@@ -25,12 +19,8 @@ public class MoodTrackListenerService extends WearableListenerService {
 
         if (messageEvent.getPath().equals("/moods")) {
             final String message = new String(messageEvent.getData());
-            ParseObject mood = new ParseObject("MoodRecord");
-            mood.add("name", message);
-            mood.add("user", ParseUser.getCurrentUser());
-            mood.saveInBackground();
-        }
-        else {
+            AppSpice.createEvent("moodTrack").with("mood", message).track();
+        } else {
             super.onMessageReceived(messageEvent);
         }
     }
